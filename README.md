@@ -4,7 +4,7 @@ Conversation context, thread state, and durable memory for Laravel applications 
 
 Jev Memory gives an application a reliable context layer between a conversation and an AI decision. It preserves raw turns, records explicit workflow state, resolves short follow-ups such as `Yes` against that state, and retrieves only the context relevant to the current turn.
 
-> **Status:** V1 thread-core implementation is in progress. Jev-backed resolution, advanced retrieval, and vector search remain optional extension points described in the roadmap.
+> **Status:** V1 thread-core implementation is complete at the package level. Run the Testbench suite in an environment with Composer dependencies before tagging a release. Jev-backed resolution, advanced retrieval, and vector search remain optional extension points.
 
 ## Why Jev Memory?
 
@@ -347,6 +347,18 @@ Conversation content may contain sensitive information. Applications should prov
 - Disabling long-term memory per user or thread
 
 Avoid logging raw conversation content unless it is explicitly required and protected.
+
+Use the lifecycle APIs from scheduled jobs or application actions:
+
+```php
+$thread->forget();
+
+JevMemory::memories()->forUser($user->id)->deleteForScope();
+JevMemory::memories()->expire();
+JevMemory::retention()->purge();
+```
+
+`purge()` uses `retention.raw_turn_days` and `retention.compact_turn_days`. Leave either value `null` to retain that record type indefinitely.
 
 ## Testing
 

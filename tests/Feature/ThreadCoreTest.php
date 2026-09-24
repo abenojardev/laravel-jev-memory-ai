@@ -45,4 +45,29 @@ final class ThreadCoreTest extends TestCase
         $this->expectException(StateConflictException::class);
         $thread->state()->transition('workflow.stale', $version, ['stage' => 'stale']);
     }
+
+    public function test_compaction_adds_a_compact_record_without_deleting_the_raw_turn(): void
+    {
+        $thread = JevMemory::threads()->create();
+        $turn = $thread->appendUserMessage('The venue is T\'boli.');
+
+        $compact = $thread->compact($turn);
+
+        $this->assertSame($turn->raw_content, $compact->compact_content);
+        $this->assertSame($turn->raw_content, $thread->fresh()->turns()->first()->raw_content);
+        $this->assertSame(1, $thread->fresh()->compactTurns()->count());
+    }
+
+    public function test_fake_assertion_and_scoped_memory_lifecycle_work(): void
+    {
+        $thread = JevMemory::threads()->create();
+        $thread->state()->set(['stage' => 'collecting']);
+        JevMemory::fake()->assertState($thread, ['stage' => 'collecting']);
+
+        $memory = JevMemory::memories()->forUser('user-1')->remember('preference', 'Acoustic acts.');
+        $this->assertCount(1, JevMemory::memories()->forUser('user-1')->active());
+        JevMemory::memories()->forUser('user-1')->supersede($memory);
+        $this->assertSame('superseded', $memory->refresh()->status);
+        $this->assertSame(1, JevMemory::memories()->forUser('user-1')->deleteForScope());
+    }
 }

@@ -43,4 +43,36 @@ final class MemoryManager implements MemoryRepository
     }
 
     public function create(array $attributes): Memory { return Memory::query()->create($attributes); }
+
+    public function active(int $limit = 10): array
+    {
+        return Memory::query()
+            ->where('status', 'active')
+            ->when($this->scopeType !== null, fn ($query) => $query->where('scope_type', $this->scopeType)->where('scope_key', $this->scopeKey))
+            ->where(fn ($query) => $query->whereNull('valid_until')->orWhere('valid_until', '>', now()))
+            ->latest('importance')->latest('updated_at')->limit($limit)->get()->all();
+    }
+
+    public function supersede(Memory $memory, ?Memory $replacement = null): Memory
+    {
+        $memory->forceFill([
+            'status' => 'superseded',
+            'superseded_by' => $replacement?->getKey(),
+        ])->save();
+        return $memory->refresh();
+    }
+
+    public function expire(): int
+    {
+        return Memory::query()->where('status', 'active')->whereNotNull('valid_until')->where('valid_until', '<=', now())->update(['status' => 'expired', 'updated_at' => now()]);
+    }
+
+    public function deleteForScope(): int
+    {
+        if ($this->scopeType === null || $this->scopeKey === null) {
+            throw new \LogicException('A memory scope is required before deletion.');
+        }
+
+        return Memory::query()->where('scope_type', $this->scopeType)->where('scope_key', $this->scopeKey)->delete();
+    }
 }

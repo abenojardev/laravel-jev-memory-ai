@@ -53,6 +53,8 @@ class Thread extends Model
         return $this->refresh();
     }
 
+    public function forget(): void { $this->delete(); }
+
     public function compact(Turn $turn, ?string $assistant = null, array $stateDelta = []): CompactTurn
     {
         $result = app(TurnCompactor::class)->compact(new CompactionInput(

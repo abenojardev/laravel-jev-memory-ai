@@ -18,6 +18,7 @@ use Jev\Memory\Support\ThreadManager;
 use Jev\Memory\Support\TurnIngestor;
 use Jev\Memory\Support\NullTurnCompactor;
 use Jev\Memory\Support\MemoryManager;
+use Jev\Memory\Support\RetentionManager;
 
 class JevMemoryServiceProvider extends ServiceProvider
 {
@@ -28,6 +29,7 @@ class JevMemoryServiceProvider extends ServiceProvider
         $this->app->singleton(ThreadRepository::class, ThreadManager::class);
         $this->app->singleton(ThreadManager::class);
         $this->app->singleton(MemoryManager::class);
+        $this->app->singleton(RetentionManager::class);
         $this->app->singleton(TurnIngestor::class);
         $this->app->bind(MeaningResolver::class, RulesMeaningResolver::class);
         $this->app->bind(RetrievalPlanner::class, DefaultRetrievalPlanner::class);
