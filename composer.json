@@ -1,0 +1,37 @@
+{
+  "name": "abenojardev/jev-memory-laravel",
+  "description": "Conversation context, thread state, and durable memory for Laravel applications using Jev.",
+  "type": "library",
+  "license": "MIT",
+  "require": {
+    "php": "^8.2",
+    "illuminate/database": "^10.0|^11.0|^12.0",
+    "illuminate/events": "^10.0|^11.0|^12.0",
+    "illuminate/support": "^10.0|^11.0|^12.0"
+  },
+  "require-dev": {
+    "orchestra/testbench": "^8.0|^9.0|^10.0",
+    "phpunit/phpunit": "^10.0|^11.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Jev\\Memory\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Jev\\Memory\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": ["Jev\\Memory\\Laravel\\JevMemoryServiceProvider"]
+    }
+  },
+  "scripts": {
+    "test": "phpunit",
+    "test:lint": "php -l src/Laravel/JevMemoryServiceProvider.php"
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}
